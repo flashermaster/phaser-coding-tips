@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>flappybird</title>
+    <meta charset="utf-8">
+    <script src="//cdn.jsdelivr.net/phaser/2.6.2/phaser.min.js"></script>
+</head>
+<body>
+
+    <div id="game"></div>
+
+    <script type="text/javascript">
+
+    var game = new Phaser.Game(288, 512, Phaser.CANVAS, 'game');
+
+    var PhaserGame = function (game) {
+
+        this.bird = null;
+        this.background = null;
+        this.land = null;
+        this.cursors = null;
+        this.play = null;
+        this.ready = null;
+    };
+
+    PhaserGame.prototype = {
+
+        init: function () {
+
+            this.game.renderer.renderSession.roundPixels = true;
+
+            //this.game.world.setBounds(0, 0, 288, 512);
+
+            this.physics.startSystem(Phaser.Physics.ARCADE);
+            this.physics.arcade.gravity.y = 800;
+
+        },
+
+        preload: function () {
+
+            //  We need this because the assets are on Amazon S3
+            //  Remove the next 2 lines if running locally
+            this.load.image('land','assets/flappybird/land.png');
+            this.load.spritesheet('bird', 'assets/flappybird/bird_yellow.png', 48, 48);
+            this.load.image('background', 'assets/flappybird/bg_day.png');
+            this.load.image('play', 'assets/flappybird/button_play.png');
+            this.load.image('ready', 'assets/flappybird/text_ready.png');
+
+            //  Note: Graphics from Amiga Tanx Copyright 1991 Gary Roberts
+
+        },
+
+        create: function () {
+
+            //  Simple but pretty background
+            this.background = this.add.sprite(0, 0, 'background');
+
+            //  Something to shoot at :)
+            this.bird = this.add.sprite(120, 176, 'bird');
+            this.bird.animations.add('fly', [0, 1, 2], 5, true);
+            //this.bird.collideWorldBounds = true;
+
+            //this.land = this.add.sprite(0, )
+
+            this.cursors = this.input.keyboard.createCursorKeys();
+            this.game.physics.arcade.enable(this.bird);
+
+            this.lands = this.add.physicsGroup();
+            this.lands.create(0, 400, 'land');
+            //this.lands.create(336, 400, 'land');
+            this.lands.setAll('body.allowGravity', false);
+            this.lands.setAll('body.immovable', true);
+            this.lands.setAll('body.velocity.x', -100);
+            /*
+            this.land = this.add.sprite(0, 400, 'land');
+            this.game.physics.arcade.enable(this.land);
+            //this.land.enableBody = true;
+            this.land.body.immovable = true;
+            this.land.body.velocity.x = -200;
+            this.land.allowGravity = false;
+            */
+
+            this.play = this.add.sprite(115, 240, 'play');
+            this.play.scale.setTo(0.5, 0.5);
+            //this.ready = this.add.sprite();
+        },
+
+        wrapLand: function (land) {
+            if (land.body.velocity.x < 0 && land.x <= -48){
+                land.x = 0;
+            }
+        },
+
+        setFriction: function(bird, land) {
+            bird.body.x -= land.body.x - land.body.prev.x;
+        },
+
+        /**
+         * Called by physics.arcade.overlap if the bullet and a target overlap
+         *
+         * @method hitTarget
+         * @param {Phaser.Sprite} bullet - A reference to the bullet (same as this.bullet)
+         * @param {Phaser.Sprite} target - The target the bullet hit
+         */
+
+        /*
+        hitTarget: function (bullet, target) {
+
+            target.kill();
+            this.removeBullet();
+
+        },
+        */
+
+        /**
+         * Removes the bullet, stops the camera following and tweens the camera back to the tank.
+         * Have put this into its own method as it's called from several places.
+         *
+         * @method removeBullet
+         */
+
+        /*
+        removeBullet: function () {
+
+            this.bullet.kill();
+            this.camera.follow();
+            this.add.tween(this.camera).to( { x: 0 }, 1000, "Quint", true, 1000);
+
+        },
+        */
+
+        /**
+         * Core update loop. Handles collision checks and player input.
+         *
+         * @method update
+         */
+        update: function () {
+            this.lands.forEach(this.wrapLand, this);
+            //this.game.physics.arcade.collide(this.bird, this.lands, this.setFriction, null, this);
+
+            this.bird.animations.play('fly');
+            //this.land.body.velocity.x = 100;
+
+            if (this.play.exists) {
+                this.bird.body.moves = false;
+                return;
+            }
+
+            if (this.bird.y >= 358){
+                //this.bird.animations.stop();
+                //this.bird.body.allowGravity = false;
+                //this.bird.body.velocity.x = 0;
+                this.bird.body.moves = false;
+                this.lands.setAll('body.velocity.x', 0);
+            }
+
+            if (this.cursors.up.isDown)
+            {
+                this.bird.body.velocity.y = -300;
+            }
+        }
+
+    };
+
+    game.state.add('Game', PhaserGame, true);
+
+    </script>
+
+</body>
+</html>
