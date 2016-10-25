@@ -80,9 +80,14 @@
             this.land.allowGravity = false;
             */
 
-            this.play = this.add.sprite(115, 240, 'play');
+            this.play = this.add.button(115, 240, 'play', this.actionOnClick, this);
             this.play.scale.setTo(0.5, 0.5);
             //this.ready = this.add.sprite();
+        },
+
+        actionOnClick: function() {
+            console.log('click');
+            this.play.kill();
         },
 
         wrapLand: function (land) {
@@ -145,6 +150,8 @@
                 this.bird.body.moves = false;
                 return;
             }
+            this.bird.body.moves = true;
+            //console.log('start');
 
             if (this.bird.y >= 358){
                 //this.bird.animations.stop();
@@ -152,6 +159,8 @@
                 //this.bird.body.velocity.x = 0;
                 this.bird.body.moves = false;
                 this.lands.setAll('body.velocity.x', 0);
+            }else if (this.bird.y <= 0) {
+                this.bird.y = 0;
             }
 
             if (this.cursors.up.isDown)
