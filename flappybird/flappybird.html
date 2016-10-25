@@ -12,6 +12,7 @@
     <script type="text/javascript">
 
     var game = new Phaser.Game(288, 512, Phaser.CANVAS, 'game');
+    var gameStart = false;
 
     var PhaserGame = function (game) {
 
@@ -83,12 +84,20 @@
             this.play = this.add.button(115, 240, 'play', this.actionOnClick, this);
             this.play.scale.setTo(0.5, 0.5);
             //this.ready = this.add.sprite();
+
+            this.input.activePointer.leftButton.onDown.add(this.jumpOnce, this);
         },
 
         actionOnClick: function() {
             console.log('click');
+            gameStart = true;
             this.play.kill();
         },
+
+        jumpOnce: function() {
+            console.log('leftButton clicked.');
+            this.bird.body.velocity.y = -300;
+        }
 
         wrapLand: function (land) {
             if (land.body.velocity.x < 0 && land.x <= -48){
@@ -149,8 +158,25 @@
             if (this.play.exists) {
                 this.bird.body.moves = false;
                 return;
+            }else {
+                this.bird.body.moves = true;
+                if (gameStart) {
+                    this.input.activePointer.leftButton.onDown.add(function() {
+                        console.log('leftButton clicked.');
+                        this.bird.body.velocity.y = -300;
+                    });
+                }
+
+                console.log('add input.activePointer.leftButton');
+                /*
+                this.input.activePointer.leftButton.onDown.add(function() {
+                    console.log('leftButton clicked.');
+                    //this.bird.body.velocity.y = -300;
+                });
+                */
+
             }
-            this.bird.body.moves = true;
+
             //console.log('start');
 
             if (this.bird.y >= 358){
@@ -163,10 +189,24 @@
                 this.bird.y = 0;
             }
 
+            /*
+            if (this.input.activePointer.leftButton.onDown) {
+                this.bird.body.velocity.y = -300;
+            }
+            */
+
+            /*
             if (this.cursors.up.isDown)
             {
                 this.bird.body.velocity.y = -300;
             }
+            */
+
+
+        }
+        
+        render: function () {
+
         }
 
     };
