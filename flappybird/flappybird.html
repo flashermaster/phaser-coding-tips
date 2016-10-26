@@ -19,9 +19,10 @@
         this.bird = null;
         this.background = null;
         this.land = null;
-        this.cursors = null;
+        //this.cursors = null;
         this.play = null;
         this.ready = null;
+        this.pipes = null;
     };
 
     PhaserGame.prototype = {
@@ -33,7 +34,7 @@
             //this.game.world.setBounds(0, 0, 288, 512);
 
             this.physics.startSystem(Phaser.Physics.ARCADE);
-            this.physics.arcade.gravity.y = 800;
+            this.physics.arcade.gravity.y = 2400;
 
         },
 
@@ -46,6 +47,8 @@
             this.load.image('background', 'assets/flappybird/bg_day.png');
             this.load.image('play', 'assets/flappybird/button_play.png');
             this.load.image('ready', 'assets/flappybird/text_ready.png');
+            this.load.image('pipe_up','assets/flappybird/pipe_up.png');
+            this.load.image('pipe_down','assets/flappybird/pipe_down.png');
 
             //  Note: Graphics from Amiga Tanx Copyright 1991 Gary Roberts
 
@@ -63,9 +66,19 @@
 
             //this.land = this.add.sprite(0, )
 
-            this.cursors = this.input.keyboard.createCursorKeys();
+            //this.cursors = this.input.keyboard.createCursorKeys();
             this.game.physics.arcade.enable(this.bird);
 
+            //PIPES
+            this.pipes = this.add.physicsGroup();
+            for (var i=0; i<2; i++) {
+                var pipe_up = this.pipes.create( 400+170*i, this.rnd.between(20, 280), 'pipe_up');
+                var pipe_down = this.pipes.create(400+170*i, pipe_up.y - 120 - 320, 'pipe_down');
+            }
+            this.pipes.setAll('body.allowGravity', false);
+            this.pipes.setAll('body.immovable', true);
+
+            //LAND
             this.lands = this.add.physicsGroup();
             this.lands.create(0, 400, 'land');
             //this.lands.create(336, 400, 'land');
@@ -91,13 +104,16 @@
         actionOnClick: function() {
             console.log('click');
             gameStart = true;
+            this.pipes.setAll('body.velocity.x', -100);
             this.play.kill();
         },
 
         jumpOnce: function() {
             console.log('leftButton clicked.');
-            this.bird.body.velocity.y = -300;
-        }
+            if (!this.play.exists) {
+                this.bird.body.velocity.y = -600;
+            }
+        },
 
         wrapLand: function (land) {
             if (land.body.velocity.x < 0 && land.x <= -48){
@@ -105,9 +121,11 @@
             }
         },
 
+        /*
         setFriction: function(bird, land) {
             bird.body.x -= land.body.x - land.body.prev.x;
         },
+        */
 
         /**
          * Called by physics.arcade.overlap if the bullet and a target overlap
@@ -160,21 +178,14 @@
                 return;
             }else {
                 this.bird.body.moves = true;
+                /*
                 if (gameStart) {
                     this.input.activePointer.leftButton.onDown.add(function() {
                         console.log('leftButton clicked.');
                         this.bird.body.velocity.y = -300;
                     });
                 }
-
-                console.log('add input.activePointer.leftButton');
-                /*
-                this.input.activePointer.leftButton.onDown.add(function() {
-                    console.log('leftButton clicked.');
-                    //this.bird.body.velocity.y = -300;
-                });
                 */
-
             }
 
             //console.log('start');
@@ -183,12 +194,15 @@
                 //this.bird.animations.stop();
                 //this.bird.body.allowGravity = false;
                 //this.bird.body.velocity.x = 0;
-                this.bird.body.moves = false;
+                //this.bird.body.moves = false;
+                this.gameOver();
                 this.lands.setAll('body.velocity.x', 0);
             }else if (this.bird.y <= 0) {
                 this.bird.y = 0;
+                this.bird.body.velocity.y = 0;
             }
 
+            //console.log('bird.body.y = %s, bird.y = %s', this.bird.body.y, this.bird.y);
             /*
             if (this.input.activePointer.leftButton.onDown) {
                 this.bird.body.velocity.y = -300;
@@ -203,11 +217,16 @@
             */
 
 
-        }
+        },
+
+        gameOver: function() {
+            this.bird.body.moves = false;
+            this.pipes.body.moves = false;
+        },
         
         render: function () {
 
-        }
+        },
 
     };
 
