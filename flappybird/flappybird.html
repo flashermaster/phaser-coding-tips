@@ -34,7 +34,7 @@
             //this.game.world.setBounds(0, 0, 288, 512);
 
             this.physics.startSystem(Phaser.Physics.ARCADE);
-            this.physics.arcade.gravity.y = 2400;
+            this.physics.arcade.gravity.y = 1400;
 
         },
 
@@ -72,7 +72,7 @@
             //PIPES
             this.pipes = this.add.physicsGroup();
             for (var i=0; i<2; i++) {
-                var pipe_up = this.pipes.create( 400+170*i, this.rnd.between(20, 280), 'pipe_up');
+                var pipe_up = this.pipes.create( 400+170*i, this.rnd.between(170, 330), 'pipe_up');
                 var pipe_down = this.pipes.create(400+170*i, pipe_up.y - 120 - 320, 'pipe_down');
             }
             this.pipes.setAll('body.allowGravity', false);
@@ -105,19 +105,44 @@
             console.log('click');
             gameStart = true;
             this.pipes.setAll('body.velocity.x', -100);
+
             this.play.kill();
         },
 
         jumpOnce: function() {
             console.log('leftButton clicked.');
             if (!this.play.exists) {
-                this.bird.body.velocity.y = -600;
+                this.bird.body.velocity.y = -450;
             }
         },
 
         wrapLand: function (land) {
             if (land.body.velocity.x < 0 && land.x <= -48){
                 land.x = 0;
+            }
+        },
+
+        wrapPipe: function (pipe) {
+            if (pipe.body.velocity.x < 0 && pipe.x <= -52){
+                console.log('wrapPipe');
+                pipe.kill();
+                pipe.x = 0;
+                if (pipe.key === 'pipe_up') {
+                    console.log('delete up pipe');
+                    //pipe.kill();
+                    return;
+                }else {
+                    console.log('create new pipe pair');
+                    //pipe.kill();
+                    ///*
+                    var pipe_up = this.pipes.create( 288, this.rnd.between(170, 330), 'pipe_up');
+                    var pipe_down = this.pipes.create(288, pipe_up.y - 120 - 320, 'pipe_down');
+                    this.pipes.setAll('body.allowGravity', false);
+                    this.pipes.setAll('body.immovable', true);
+                    this.pipes.setAll('body.velocity.x', -100);
+                    //*/
+                }
+
             }
         },
 
@@ -168,9 +193,11 @@
          */
         update: function () {
             this.lands.forEach(this.wrapLand, this);
+            this.pipes.forEach(this.wrapPipe, this);
             //this.game.physics.arcade.collide(this.bird, this.lands, this.setFriction, null, this);
 
             this.bird.animations.play('fly');
+
             //this.land.body.velocity.x = 100;
 
             if (this.play.exists) {
@@ -221,11 +248,11 @@
 
         gameOver: function() {
             this.bird.body.moves = false;
-            this.pipes.body.moves = false;
+            this.pipes.setAll('body.moves', false);
         },
         
         render: function () {
-
+            this.bird.body.maxVelocity.y = 600;
         },
 
     };
