@@ -59,16 +59,6 @@
             //  Simple but pretty background
             this.background = this.add.sprite(0, 0, 'background');
 
-            //  Something to shoot at :)
-            this.bird = this.add.sprite(120, 176, 'bird');
-            this.bird.animations.add('fly', [0, 1, 2], 5, true);
-            //this.bird.collideWorldBounds = true;
-
-            //this.land = this.add.sprite(0, )
-
-            //this.cursors = this.input.keyboard.createCursorKeys();
-            this.game.physics.arcade.enable(this.bird);
-
             //PIPES
             this.pipes = this.add.physicsGroup();
             for (var i=0; i<2; i++) {
@@ -97,6 +87,15 @@
             this.play = this.add.button(115, 240, 'play', this.actionOnClick, this);
             this.play.scale.setTo(0.5, 0.5);
             //this.ready = this.add.sprite();
+
+            this.bird = this.add.sprite(120, 176, 'bird');
+            this.bird.animations.add('fly', [0, 1, 2], 5, true);
+            //this.bird.collideWorldBounds = true;
+
+            //this.land = this.add.sprite(0, )
+
+            //this.cursors = this.input.keyboard.createCursorKeys();
+            this.game.physics.arcade.enable(this.bird);
 
             this.input.activePointer.leftButton.onDown.add(this.jumpOnce, this);
         },
@@ -195,6 +194,7 @@
             this.lands.forEach(this.wrapLand, this);
             this.pipes.forEach(this.wrapPipe, this);
             //this.game.physics.arcade.collide(this.bird, this.lands, this.setFriction, null, this);
+            game.physics.arcade.overlap(this.bird, this.pipes, this.gameOver, null, this);
 
             this.bird.animations.play('fly');
 
@@ -223,7 +223,7 @@
                 //this.bird.body.velocity.x = 0;
                 //this.bird.body.moves = false;
                 this.gameOver();
-                this.lands.setAll('body.velocity.x', 0);
+
             }else if (this.bird.y <= 0) {
                 this.bird.y = 0;
                 this.bird.body.velocity.y = 0;
@@ -249,6 +249,8 @@
         gameOver: function() {
             this.bird.body.moves = false;
             this.pipes.setAll('body.moves', false);
+            this.lands.setAll('body.velocity.x', 0);
+            this.input.activePointer.leftButton.onDown.remove(this.jumpOnce, this);
         },
         
         render: function () {
