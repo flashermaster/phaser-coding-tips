@@ -43,7 +43,7 @@
             //  We need this because the assets are on Amazon S3
             //  Remove the next 2 lines if running locally
             this.load.image('land','assets/flappybird/land.png');
-            this.load.spritesheet('bird', 'assets/flappybird/bird_yellow.png', 48, 48);
+            this.load.spritesheet('bird', 'assets/flappybird/bird_small.png', 34, 24);
             this.load.image('background', 'assets/flappybird/bg_day.png');
             this.load.image('play', 'assets/flappybird/button_play.png');
             this.load.image('ready', 'assets/flappybird/text_ready.png');
@@ -88,7 +88,7 @@
             this.play.scale.setTo(0.5, 0.5);
             //this.ready = this.add.sprite();
 
-            this.bird = this.add.sprite(120, 176, 'bird');
+            this.bird = this.add.sprite(127, 176, 'bird');
             this.bird.animations.add('fly', [0, 1, 2], 5, true);
             //this.bird.collideWorldBounds = true;
 
@@ -217,7 +217,7 @@
 
             //console.log('start');
 
-            if (this.bird.y >= 358){
+            if (this.bird.y >= 376){
                 //this.bird.animations.stop();
                 //this.bird.body.allowGravity = false;
                 //this.bird.body.velocity.x = 0;
